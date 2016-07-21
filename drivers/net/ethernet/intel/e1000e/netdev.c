@@ -7561,6 +7561,7 @@ static struct pci_driver e1000_driver = {
 	.remove   = e1000_remove,
 	.driver   = {
 		.pm = &e1000_pm_ops,
+		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 	},
 	.shutdown = e1000_shutdown,
 	.err_handler = &e1000_err_handler
