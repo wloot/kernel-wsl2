@@ -39,7 +39,7 @@ KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
 KBUILD_CFLAGS += -Wno-pointer-sign
 
-KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__ -Wa,-mbranches-within-no-boundaries
 GCOV_PROFILE := n
 UBSAN_SANITIZE :=n
 
