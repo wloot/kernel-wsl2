@@ -384,7 +384,7 @@ ifeq ($(ARCH),sh64)
        SRCARCH := sh
 endif
 
-KCONFIG_CONFIG	?= .config
+KCONFIG_CONFIG	?= $(PWD)/Microsoft/config-wsl
 export KCONFIG_CONFIG
 
 # SHELL used by kbuild
