@@ -3,9 +3,7 @@
 # For a description of the syntax of this configuration file,
 # see Documentation/kbuild/kconfig-language.rst.
 #
-mainmenu "Linux/$(ARCH) $(KERNELVERSION) Kernel Configuration"
-
-comment "Compiler: $(CC_VERSION_TEXT)"
+mainmenu "Linux/$(ARCH) $(VERSION).$(PATCHLEVEL).y Kernel Configuration"
 
 source "scripts/Kconfig.include"
 
