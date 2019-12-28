@@ -296,8 +296,15 @@ config GENERIC_CPU
 
 endchoice
 
+config NATIVE_CPU
+	bool "Optimize for native CPU"
+	depends on (X86_64 && GENERIC_CPU) || (X86_32 && M686)
+	---help---
+	  This enables -march=native and -mtune=native for compiler.
+
 config X86_GENERIC
 	bool "Generic x86 support"
+	depends on !NATIVE_CPU
 	depends on X86_32
 	---help---
 	  Instead of just including optimizations for the selected
