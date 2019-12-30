@@ -379,7 +379,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
 		return compat_put_ushort(arg, max_sectors);
 	case BLKROTATIONAL:
 		return compat_put_ushort(arg,
-					 !blk_queue_nonrot(bdev_get_queue(bdev)));
+					 !blk_queue_nonrot(bdev_get_queue(bdev)) || !strncmp(disk->disk_name, "sd", 2));
 	case BLKRASET: /* compatible, but no compat_ptr (!) */
 	case BLKFRASET:
 		if (!capable(CAP_SYS_ADMIN))

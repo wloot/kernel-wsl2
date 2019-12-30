@@ -2962,7 +2962,7 @@ static void sd_read_block_characteristics(struct scsi_disk *sdkp)
 
 	rot = get_unaligned_be16(&buffer[4]);
 
-	if (rot == 1) {
+	if (rot == 1 || !strncmp(sdkp->disk->disk_name, "sd", 2)) {
 		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
 	}
