@@ -62,19 +62,8 @@ void __init housekeeping_init(void)
 	WARN_ON_ONCE(cpumask_empty(housekeeping_mask));
 }
 
-static int __init housekeeping_setup(char *str, enum hk_flags flags)
+static int __init __housekeeping_setup(cpumask_var_t non_housekeeping_mask, enum hk_flags flags)
 {
-	cpumask_var_t non_housekeeping_mask;
-	int err;
-
-	alloc_bootmem_cpumask_var(&non_housekeeping_mask);
-	err = cpulist_parse(str, non_housekeeping_mask);
-	if (err < 0 || cpumask_last(non_housekeeping_mask) >= nr_cpu_ids) {
-		pr_warn("Housekeeping: nohz_full= or isolcpus= incorrect CPU range\n");
-		free_bootmem_cpumask_var(non_housekeeping_mask);
-		return 0;
-	}
-
 	if (!housekeeping_flags) {
 		alloc_bootmem_cpumask_var(&housekeeping_mask);
 		cpumask_andnot(housekeeping_mask,
@@ -113,15 +102,52 @@ static int __init housekeeping_setup(char *str, enum hk_flags flags)
 	return 1;
 }
 
+static int __init housekeeping_setup(char *str, enum hk_flags flags)
+{
+	cpumask_var_t non_housekeeping_mask;
+	int err;
+
+	alloc_bootmem_cpumask_var(&non_housekeeping_mask);
+	err = cpulist_parse(str, non_housekeeping_mask);
+	if (err < 0 || cpumask_last(non_housekeeping_mask) >= nr_cpu_ids) {
+		pr_warn("Housekeeping: nohz_full= or isolcpus= incorrect CPU range\n");
+		free_bootmem_cpumask_var(non_housekeeping_mask);
+		return 0;
+	}
+
+	return __housekeeping_setup(non_housekeeping_mask, flags);
+}
+
+static int nohz_full_flag;
 static int __init housekeeping_nohz_full_setup(char *str)
 {
 	unsigned int flags;
 
 	flags = HK_FLAG_TICK | HK_FLAG_WQ | HK_FLAG_TIMER | HK_FLAG_RCU | HK_FLAG_MISC;
+	nohz_full_flag = 1;
 
 	return housekeeping_setup(str, flags);
 }
 __setup("nohz_full=", housekeeping_nohz_full_setup);
+
+static int __init backup_housekeeping_nohz_full_setup(char *str)
+{
+	cpumask_var_t non_first_cpu_mask;
+	unsigned int flags;
+
+	if (nohz_full_flag == 1)
+		return 0;
+
+	if (strcmp(str, "1") == 0)
+		return 0;
+
+	alloc_bootmem_cpumask_var(&non_first_cpu_mask);
+	cpumask_set_cpu(nr_cpu_ids & ~1, non_first_cpu_mask);
+	flags = HK_FLAG_TICK | HK_FLAG_WQ | HK_FLAG_TIMER | HK_FLAG_RCU | HK_FLAG_MISC;
+
+	return __housekeeping_setup(non_first_cpu_mask, flags);
+}
+__setup("nr_cpus=", backup_housekeeping_nohz_full_setup);
 
 static int __init housekeeping_isolcpus_setup(char *str)
 {
