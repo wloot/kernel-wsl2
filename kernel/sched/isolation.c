@@ -130,7 +130,7 @@ static int __init housekeeping_nohz_full_setup(char *str)
 }
 __setup("nohz_full=", housekeeping_nohz_full_setup);
 
-static int __init backup_housekeeping_nohz_full_setup(char *str)
+static int __init backup_housekeeping_nohz_full_setup(__attribute__((unused)) char *str)
 {
 	cpumask_var_t non_first_cpu_mask;
 	unsigned int flags;
@@ -138,11 +138,11 @@ static int __init backup_housekeeping_nohz_full_setup(char *str)
 	if (nohz_full_flag == 1)
 		return 0;
 
-	if (strcmp(str, "1") == 0)
+	if (nr_cpu_ids <= 1)
 		return 0;
 
 	alloc_bootmem_cpumask_var(&non_first_cpu_mask);
-	cpumask_set_cpu(nr_cpu_ids & ~1, non_first_cpu_mask);
+	cpumask_andnot(non_first_cpu_mask, cpu_possible_mask, cpu_online_mask);
 	flags = HK_FLAG_TICK | HK_FLAG_WQ | HK_FLAG_TIMER | HK_FLAG_RCU | HK_FLAG_MISC;
 
 	return __housekeeping_setup(non_first_cpu_mask, flags);
